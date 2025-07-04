@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${pageTitle}">Awesome App Homepage</title>
+  <!--  CSS -->
+  <link rel="stylesheet" type="text/css" th:href="@{css/homeStyle.css}">
+  <!-- Bootstrap ICONS and CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css}" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" th:href="@{https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css}">
+
+
+</head>
+<body class="background-image">
+  <header  th:style="'background: linear-gradient( rgb(0 14 38  / 70%), rgba(6 26 79 / 48%)),
+                  url('+ @{/images/Mumbai.jpg }+') no-repeat center center/cover;  background-attachment: fixed;'">
+    <!-- Navigation BAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="container-fluid">
+        <!-- Brand/Logo -->
+        <a class="navbar-brand fw-bold" href="#" style="color: #6366f1;" th:text="${appName}">AppLogo</a>
+
+        <!-- Hamburger Menu Button (Mobile Toggle) -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navigation Items -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" th:href="@{/}">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/dashboard}">DashBoard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/api/townships/add}"> TownShip</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/api/scraper/searchProperty}">Search Land</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6">
+            <h1 class="display-4 fw-bold mb-5" th:text="${heroTitle}">Transform Your Workflow With Our Amazing App</h1>
+            <p class="lead mb-4 fst-italic fw-bold" th:text="${heroSubtitle}">Experience the next generation of productivity tools designed to streamline your workflow and boost efficiency.</p>
+            <a th:href="@{/register}" class="btn btn-outline-light app-btn text-light">Get Started</a>
+            <a th:href="@{/features}" class="btn btn-outline-light app-btn ms-3 text-light">Learn More</a>
+          </div>
+          <div class="col-lg-6">
+          </div>
+        </div>
+      </div>
+    </section>
+  </header>
+
+  <!-- Townships Section -->
+  <section class="container py-5" th:if="${not #lists.isEmpty(states)}">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold mb-3" style="color: #6366f1;">Major Townships Across India</h2>
+      <p class="lead text-muted">
+        Explore premium residential developments in key locations nationwide
+      </p>
+    </div>
+
+    <!-- State Cards Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <div class="col" th:each="entry : ${states}">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-header bg-indigo ">
+            <h3 class="h5 mb-0" th:text="${entry.key}">State Name</h3>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12" th:each="township : ${entry.value}">
+                <div class="township-card position-relative">
+                  <!-- Display Image -->
+                  <img th:src="|data:image/jpeg;base64,${township.imageBase64}|"
+                       class="card-img-top" alt="Township Image">
+                  <div class="township-overlay">
+                    <h5 class="text-white fw-bold" th:text="${township.name}">Township Name</h5>
+                    <p class="text-white small" th:text="${township.description}">Short Description</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer bg-transparent border-0">
+            <a href="#" class="btn btn-sm btn-indigo">
+              View Projects <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-5 bg-light">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="fw-bold">Key Features</h2>
+        <p class="text-muted">Discover what makes our platform the best choice for real estate investment</p>
+      </div>
+
+      <div class="row">
+        <!-- Market Insights -->
+        <div class="col-md-4">
+          <div class="feature-card shadow p-4 text-center bg-white rounded-4">
+            <div class="icon-circle bg-primary text-white">
+              <i class="fas fa-chart-line fa-3x"></i>
+            </div>
+            <h4 class="fw-bold mt-3">Market Insights</h4>
+            <p class="text-muted">Get real-time data and expert analysis on real estate trends to make informed investment decisions.</p>
+          </div>
+        </div>
+
+        <!-- Verified Listings -->
+        <div class="col-md-4">
+          <div class="feature-card shadow p-4 text-center bg-white rounded-4">
+            <div class="icon-circle bg-success text-white">
+              <i class="fas fa-building fa-3x"></i>
+            </div>
+            <h4 class="fw-bold mt-3">Verified Listings</h4>
+            <p class="text-muted">Browse through verified real estate and township projects with transparent pricing and details.</p>
+          </div>
+        </div>
+
+        <!-- Trusted Partnerships -->
+        <div class="col-md-4">
+          <div class="feature-card shadow p-4 text-center bg-white rounded-4">
+            <div class="icon-circle bg-warning text-white">
+              <i class="fas fa-handshake fa-3x"></i>
+            </div>
+            <h4 class="fw-bold mt-3">Trusted Partnerships</h4>
+            <p class="text-muted">We connect you with reliable developers and agents to ensure a smooth and secure investment experience.</p>
+          </div>
+        </div>
+
+        <!-- Flexible Financing -->
+        <div class="col-md-4">
+          <div class="feature-card shadow p-4 text-center bg-white rounded-4">
+            <div class="icon-circle bg-danger text-white">
+              <i class="fas fa-money-check-alt fa-3x"></i>
+            </div>
+            <h4 class="fw-bold mt-3">Flexible Financing</h4>
+            <p class="text-muted">Explore multiple financing options and mortgage plans tailored to your investment needs.</p>
+          </div>
+        </div>
+
+        <!-- Location Analysis -->
+        <div class="col-md-4">
+          <div class="feature-card shadow p-4 text-center bg-white rounded-4">
+            <div class="icon-circle bg-info text-white">
+              <i class="fas fa-map-marked-alt fa-3x"></i>
+            </div>
+            <h4 class="fw-bold mt-3">Location Analysis</h4>
+            <p class="text-muted">Utilize advanced tools to identify prime locations and optimize your investment returns.</p>
+          </div>
+        </div>
+
+        <!-- Secure Transactions -->
+        <div class="col-md-4">
+          <div class="feature-card shadow p-4 text-center bg-white rounded-4">
+            <div class="icon-circle bg-dark text-white">
+              <i class="fas fa-user-shield fa-3x"></i>
+            </div>
+            <h4 class="fw-bold mt-3">Secure Transactions</h4>
+            <p class="text-muted">Ensure safe ,Secure and transparent transactions with our legally vetted processes.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Footer -->
+  <!--LAST STAY Connected SECTION-->
+  <footer id="follow-us" class="bg-dark text-light py-5 rounded-3">
+    <div class="container">
+      <div class="row">
+        <!-- Company Branding & Social Media -->
+        <div class="col-md-3">
+          <h4 class="fw-bold">URBIX</h4>
+          <p class="text-light">Your trusted partner in real estate investments.</p>
+          <div class="social-media-links mt-3">
+            <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-lg"></i></a>
+            <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
+            <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
+            <a href="#" class="text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-md-3">
+          <h5 class="fw-bold">Quick Links</h5>
+          <ul class="list-unstyled">
+            <li><a href="#about-us" class="footer-link">About Us</a></li>
+            <li><a href="#investment-opportunities" class="footer-link">Investment Opportunities</a></li>
+            <li><a href="#market-trends" class="footer-link ">Market Insights</a></li>
+            <li><a href="#contact" class="footer-link">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <!-- Featured Services -->
+        <div class="col-md-3">
+          <h5 class="fw-bold">Our Services</h5>
+          <ul class="list-unstyled">
+            <li><a href="#" class="footer-link">Property Investment</a></li>
+            <li><a href="#" class="footer-link">Real Estate Advisory</a></li>
+            <li><a href="#" class="footer-link">Location Analysis</a></li>
+            <li><a href="#" class="footer-link">Legal Assistance</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="col-md-3">
+          <h5 class="fw-bold">Contact Us</h5>
+          <p class="mb-1"><i class="fas fa-map-marker-alt"></i> 123 Wall Street, New York, USA</p>
+          <p class="mb-1"><i class="fas fa-envelope"></i> support@urbix.com</p>
+          <p class="mb-1"><i class="fas fa-phone"></i> +1 9876543210</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom text-center mt-4 pt-3 border-top border-secondary">
+      <p class="mb-0 ">&copy; 2024 URBIX. All Rights Reserved.</p>
+    </div>
+  </footer>
+  <!-- Bootstrap JS -->
+  <script th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

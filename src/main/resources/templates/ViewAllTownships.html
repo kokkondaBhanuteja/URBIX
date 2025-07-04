@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View All Townships</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .navbar ul li a:hover {
+          top: -0.16em;
+          transition: padding .5s, top .35s, box-shadow .4s;
+          box-shadow: 0 0.4rem 0 -0.2rem #0ebac5;
+        }
+
+        .navbar-nav .nav-link.active {
+          box-shadow: 0 0.4rem 0 -0.2rem #0ebac5;
+        }
+
+        #sidebar {
+          min-height: calc(100vh - 56px);
+          background-color: #f8f9fa;
+          border-right: 1px solid #dee2e6;
+          padding-top: 20px;
+        }
+
+        .content-area {
+          padding-top: 80px;
+        }
+
+        .sidebar-link {
+          color: #495057;
+          text-decoration: none;
+          padding: 10px 15px;
+          display: block;
+          border-radius: 5px;
+          margin-bottom: 5px;
+        }
+
+        .sidebar-link:hover, .sidebar-link.active {
+          background-color: #e9ecef;
+          color: #0d6efd;
+        }
+
+        .sidebar-link i {
+          margin-right: 10px;
+        }
+
+        .township-card {
+          transition: transform 0.3s;
+        }
+
+        .township-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .township-img {
+          height: 200px;
+          object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation BAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+        <!-- Brand/Logo -->
+        <a class="navbar-brand fw-bold" href="#" style="color: #6366f1;" th:text="${appName}">AppLogo</a>
+
+        <!-- Hamburger Menu Button (Mobile Toggle) -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navigation Items -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/dashboard}">DashBoard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" th:href="@{/api/townships/add}">TownShip</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/api/scraper/searchProperty}">Search Land</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid content-area">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2" id="sidebar">
+            <h5 class="px-3 mb-3">Township Management</h5>
+            <a th:href="@{/api/townships/add}" class="sidebar-link">
+                <i class="fas fa-plus-circle"></i> Add Township
+            </a>
+            <a th:href="@{/api/townships/view-all}" class="sidebar-link active">
+                <i class="fas fa-list"></i> View All Townships
+            </a>
+            <a th:href="@{/api/townships/update}" class="sidebar-link">
+                <i class="fas fa-edit"></i> Update Township
+            </a>
+            <a th:href="@{/api/townships/remove}" class="sidebar-link">
+                <i class="fas fa-trash-alt"></i> Remove Township
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="container">
+                <h2 class="text-center bg-primary text-light p-3 rounded">All Townships</h2>
+
+                <!-- Success and Error Messages -->
+                <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+                <!-- No Townships Message -->
+                <div th:if="${#lists.isEmpty(townships)}" class="alert alert-info">
+                    No townships found. <a th:href="@{/api/townships/add}" class="alert-link">Add a new township</a>.
+                </div>
+
+                <!-- Townships Grid -->
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-3">
+                    <div class="col" th:each="township : ${townships}">
+                        <div class="card h-100 township-card">
+                            <img th:src="|data:image/jpeg;base64,${township.imageBase64}|"
+                                 class="card-img-top township-img" alt="Township Image">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${township.name}">Township Name</h5>
+                                <h6 class="card-subtitle mb-2 text-muted" th:text="${township.state}">State</h6>
+                                <p class="card-text" th:text="${township.description}">Description</p>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-flex justify-content-between">
+                                    <a th:href="@{'/api/townships/update/' + ${township.id}}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <a th:href="@{'/api/townships/details/' + ${township.id}}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-info-circle"></i> Details
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" th:data-bs-target="'#deleteModal' + ${township.id}">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delete Confirmation Modal -->
+                        <div class="modal fade" th:id="'deleteModal' + ${township.id}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete township <strong th:text="${township.name}"></strong>?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <form th:action="@{'/api/townships/delete/' + ${township.id}}" method="POST" th:object="${township}">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

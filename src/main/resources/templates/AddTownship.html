@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Township Management</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .navbar ul li a:hover {
+      top: -0.16em;
+      transition: padding .5s, top .35s, box-shadow .4s;
+      box-shadow: 0 0.4rem 0 -0.2rem #0ebac5;
+    }
+
+    .navbar-nav .nav-link.active {
+      box-shadow: 0 0.4rem 0 -0.2rem #0ebac5;
+    }
+
+    #sidebar {
+      min-height: calc(100vh - 56px);
+      background-color: #f8f9fa;
+      border-right: 1px solid #dee2e6;
+      padding-top: 20px;
+    }
+
+    .content-area {
+      padding-top: 80px;
+    }
+
+    .sidebar-link {
+      color: #495057;
+      text-decoration: none;
+      padding: 10px 15px;
+      display: block;
+      border-radius: 5px;
+      margin-bottom: 5px;
+    }
+
+    .sidebar-link:hover, .sidebar-link.active {
+      background-color: #e9ecef;
+      color: #0d6efd;
+    }
+
+    .sidebar-link i {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+<!-- Navigation BAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <div class="container-fluid">
+    <!-- Brand/Logo -->
+    <a class="navbar-brand fw-bold" href="#" style="color: #6366f1;" th:text="${appName}">AppLogo</a>
+
+    <!-- Hamburger Menu Button (Mobile Toggle) -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navigation Items -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/dashboard}">DashBoard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" th:href="@{/api/townships/add}">TownShip</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/api/scraper/searchProperty}">Search Land</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid content-area">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3 col-lg-2" id="sidebar">
+      <h5 class="px-3 mb-3">Township Management</h5>
+      <a th:href="@{/api/townships/add}" class="sidebar-link active">
+        <i class="fas fa-plus-circle"></i> Add Township
+      </a>
+      <a th:href="@{/api/townships/view-all}" class="sidebar-link">
+        <i class="fas fa-list"></i> View All Townships
+      </a>
+      <a th:href="@{/api/townships/update}" class="sidebar-link">
+        <i class="fas fa-edit"></i> Update Township
+      </a>
+      <a th:href="@{/api/townships/remove}" class="sidebar-link">
+        <i class="fas fa-trash-alt"></i> Remove Township
+      </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9 col-lg-10">
+      <div class="container">
+        <h2 class="text-center bg-primary text-light p-3 rounded">Add New Township</h2>
+
+        <!-- Success and Error Messages -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/api/townships/add-townShip}" method="post" enctype="multipart/form-data" th:object="${township}">
+          <div class="mb-3">
+            <label class="form-label">Township Name</label>
+            <input type="text" th:field="*{name}" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">State</label>
+            <input type="text" th:field="*{state}" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea th:field="*{description}" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Upload Image (JPG Only)</label>
+            <input type="file" name="imageFile" accept="image/jpeg, image/jpg, image/png" class="form-control" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Add Township</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Commercial Land Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<style>
+  .navbar ul li a:hover
+  {
+      top: -0.16em;
+      transition: padding .5s, top .35s, box-shadow .4s;
+      box-shadow: 0 0.4rem 0 -0.2rem #0ebac5;
+  }
+
+ .navbar-nav .nav-link.active,
+  {
+      box-shadow: 0 0.4rem 0 -0.2rem #0ebac5;
+  }
+ .chart-container {
+   width: 90%;
+   max-width: 800px;
+   margin: 0 auto;
+   height: 400px;
+ }
+ .chart-canvas {
+   display: block;
+   width: 100% !important;
+   height: 100% !important;
+ }
+</style>
+
+<body>
+<div class="container-fluid mx-auto mb-3">
+  <!-- Navigation BAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+      <!-- Brand/Logo -->
+      <a class="navbar-brand fw-bold" href="#" style="color: #6366f1;" th:text="${appName}">AppLogo</a>
+
+      <!-- Hamburger Menu Button (Mobile Toggle) -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navigation Items -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" th:href="@{/}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/dashboard}">DashBoard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/api/townships/add}"> TownShip</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/api/scraper/searchProperty}">Search Land</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</div>
+<div class="mt-3 w-100 container card card-body">
+  <h2 class="text-center mt-5" style="font-family: Arial, sans-serif; color: #333;">
+    Commercial Land Prices in <span th:text="${selectedCity}">City</span>
+  </h2>
+  <hr>
+  <form method="get" action="/dashboard" class="mb-4 text-center">
+    <label for="city" class="form-label fw-bold">Select City:</label>
+    <select name="city" id="city" class="form-select w-auto d-inline-block mx-2">
+      <option th:each="city : ${availableCities}"
+              th:value="${city}"
+              th:text="${city}"
+              th:selected="${city == selectedCity}">
+      </option>
+    </select>
+    <button type="submit" class="btn btn-primary">View Data</button>
+  </form>
+
+  <!-- Price Chart Container -->
+  <div class="mb-3 card card-body">
+    <div class="chart-container">
+      <canvas id="priceChart" class="chart-canvas"></canvas>
+    </div>
+  </div>
+  <br>
+  <!-- Area Chart Container -->
+  <div class="mt-3 card card-body">
+    <div class="chart-container">
+      <canvas id="areaChart" class="chart-canvas"></canvas>
+    </div>
+  </div>
+</div>
+<script th:inline="javascript">
+  var locations = /*[[${locations}]]*/ [];
+  var prices = /*[[${prices}]]*/ [];
+  var areas = /*[[${areas}]]*/ [];
+
+  console.log("Locations:", locations);
+  console.log("Prices:", prices);
+  console.log("Areas:", areas);
+
+  // Sort by price in descending order & take the top 10
+  var data = locations.map((loc, index) => ({
+      location: loc,
+      price: prices[index],
+      area: areas[index]
+  })).sort((a, b) => b.price - a.price).slice(0, 10);
+
+  // Extract sorted values
+  locations = data.map(item => item.location);
+  prices = data.map(item => item.price);
+  areas.sort((a,b) => b-a)
+  // Function to create modern gradient colors
+  function createGradient(ctx, color1, color2) {
+      var gradient = ctx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, color1);
+      gradient.addColorStop(1, color2);
+      return gradient;
+  }
+
+  var priceCtx = document.getElementById('priceChart').getContext('2d');
+  var areaCtx = document.getElementById('areaChart').getContext('2d');
+
+  // Price Chart with gradient & shadow effect
+  new Chart(priceCtx, {
+      type: 'bar',
+      data: {
+          labels: locations,
+          datasets: [{
+              label: 'Price (INR)',
+              data: prices,
+              backgroundColor: createGradient(priceCtx, 'rgba(255, 99, 132, 0.7)', 'rgba(255, 99, 132, 0.3)'),
+              borderColor: 'rgba(255, 99, 132, 1)',
+              borderWidth: 1,
+              borderRadius: 8,
+              hoverBackgroundColor: 'rgba(255, 99, 132, 1)',
+              hoverBorderWidth: 2
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+              duration: 2000,
+              easing: 'easeInOutQuart'
+          },
+          scales: {
+              x: {
+                  ticks: { color: '#555', font: { weight: 'bold' } }
+              },
+              y: {
+                  beginAtZero: true,
+                  ticks: {
+                      color: '#555',
+                      callback: function(value) { return '₹ ' + value.toLocaleString(); }
+                  }
+              }
+          },
+          plugins: {
+              legend: { display: false },
+              tooltip: {
+                  backgroundColor: '#222',
+                  titleFont: { size: 14 },
+                  bodyFont: { size: 13 },
+                  bodyColor: '#fff',
+                  callbacks: {
+                      label: function(tooltipItem) {
+                          return '₹ ' + tooltipItem.raw.toLocaleString();
+                      }
+                  }
+              }
+          }
+      }
+  });
+
+  // Area Chart with gradient effect
+  new Chart(areaCtx, {
+      type: 'bar',
+      data: {
+          labels: locations,
+          datasets: [{
+              label: 'Area (sq ft)',
+              data: areas,
+              backgroundColor: createGradient(areaCtx, 'rgba(54, 162, 235, 0.7)', 'rgba(54, 162, 235, 0.3)'),
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1,
+              borderRadius: 8,
+              hoverBackgroundColor: 'rgba(54, 162, 235, 1)',
+              hoverBorderWidth: 2
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+              duration: 2000,
+              easing: 'easeInOutQuart'
+          },
+          scales: {
+              x: {
+                  ticks: { color: '#555', font: { weight: 'bold' } }
+              },
+              y: {
+                  beginAtZero: true,
+                  ticks: {
+                      color: '#555',
+                      callback: function(value) { return value.toLocaleString() + ' sq ft'; }
+                  }
+              }
+          },
+          plugins: {
+              legend: { display: false },
+              tooltip: {
+                  backgroundColor: '#222',
+                  titleFont: { size: 14 },
+                  bodyFont: { size: 13 },
+                  bodyColor: '#fff',
+                  callbacks: {
+                      label: function(tooltipItem) {
+                          return tooltipItem.raw.toLocaleString() + ' sq ft';
+                      }
+                  }
+              }
+          }
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
